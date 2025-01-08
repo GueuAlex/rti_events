@@ -10,6 +10,7 @@ InspectorModel inspectorFromJson(String str) =>
 String inspectorToJson(InspectorModel data) => json.encode(data.toJson());
 
 class InspectorModel {
+  int id;
   String name;
   String? firstname;
   String? phone;
@@ -19,6 +20,7 @@ class InspectorModel {
   String scanToken;
 
   InspectorModel({
+    required this.id,
     required this.name,
     required this.firstname,
     required this.phone,
@@ -27,6 +29,7 @@ class InspectorModel {
   });
 
   factory InspectorModel.fromJson(Map<String, dynamic> json) => InspectorModel(
+        id: json["id"] ?? 0,
         name: json["name"] ?? "",
         firstname: json["firstname"] ?? "",
         phone: json["phone"] ?? "",

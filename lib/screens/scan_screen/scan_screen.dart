@@ -54,8 +54,9 @@ class ScannerScreenState extends ConsumerState<ScannerScreen> {
           ),
           Visibility(
             visible: !isKeyboardVisible,
-            child:
-                QRScannerOverlay(overlayColour: Colors.black.withOpacity(0.45)),
+            child: QRScannerOverlay(
+              overlayColour: Colors.black.withOpacity(0.45),
+            ),
           ),
           /////////////// top widgets menu//s///////////
           Positioned(

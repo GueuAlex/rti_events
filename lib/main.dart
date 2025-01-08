@@ -48,10 +48,10 @@ class RtiEvents extends StatelessWidget {
         ),
       ),
       builder: EasyLoading.init(),
-      initialRoute: SplashScreen.routeName,
+      initialRoute: SplashSceen.routeName,
       routes: {
         '/': (ctxt) => const ScannerScreen(),
-        SplashScreen.routeName: (ctxt) => const SplashScreen(),
+        SplashSceen.routeName: (ctxt) => const SplashSceen(),
         ScanHistory.routeName: (ctxt) => const ScanHistory(),
       },
     );

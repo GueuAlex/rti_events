@@ -14,10 +14,11 @@ import '../../../../config/palette.dart';
 import '../../../../widgets/all_sheet_header.dart';
 import '../../../../widgets/error_sheet_container.dart';
 import '../../../../widgets/infos_column.dart';
+import '../../../constants/constants.dart';
 import '../../../models/inspector_model.dart';
 import '../../../models/localization_model.dart';
 import '../../../models/ticket_model.dart';
-import '../../../services/remote/remote_service.dart';
+import '../../../widgets/movement_sheet.dart';
 import '../../../widgets/sucess_icon.dart';
 import 'token_checker.dart';
 
@@ -154,6 +155,36 @@ class _ScanSheetState extends State<ScanSheet> {
         ),
       );
     }
+    // vérifier les dates de l'évennement
+
+    /// liste pour stocké toutes les dates de l'évennement
+    /// dans ticket.event.localizations
+    List<DateTime> dates = [];
+    // recuperation des dates
+    for (LocalizationModel localization in ticket.event.localizations) {
+      dates.add(localization.dateEvent);
+    }
+    ///// vérifier si l'un des dates dans _dates vaut la date d'aujourd'hui
+    ///
+    if (!Functions.containsCurrentDate(dates)) {
+      return Container(
+        width: double.infinity,
+        height: 230,
+        /* margin: EdgeInsets.only(bottom: keyboardHeight), */
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(15),
+            topRight: Radius.circular(15),
+          ),
+        ),
+        child: const ErrorSheetContainer(
+          icon: FluentIcons.calendar_24_regular,
+          text:
+              'Ce n\'est pas encore la date de l\'événement\nou la date est déjà passée.',
+        ),
+      );
+    }
 
     // si ticket n'est pas active
     if (!ticket.active) {
@@ -172,7 +203,10 @@ class _ScanSheetState extends State<ScanSheet> {
             topRight: Radius.circular(15),
           ),
         ),
-        child: FirstCheck(code: ticket.uniqueCode),
+        child: FirstCheck(
+          code: ticket.uniqueCode,
+          inspectoroken: inspect.scanToken,
+        ),
       );
     }
 
@@ -180,7 +214,7 @@ class _ScanSheetState extends State<ScanSheet> {
     if (ticket.scanned) {
       return Container(
         width: double.infinity,
-        height: 230,
+        height: MediaQuery.of(context).size.height * 0.35,
         /* margin: EdgeInsets.only(bottom: keyboardHeight), */
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -189,42 +223,12 @@ class _ScanSheetState extends State<ScanSheet> {
             topRight: Radius.circular(15),
           ),
         ),
-        child: const ErrorSheetContainer(
-          text: 'Ce Qr code a déjà été scanné !',
+        child: MovementSheet(
+          ticketId: ticket.id,
+          inspectorId: inspect.id,
         ),
       );
     } else {
-      // vérifier les dates de l'évennement
-
-      /// liste pour stocké toutes les dates de l'évennement
-      /// dans ticket.event.localizations
-      List<DateTime> dates = [];
-      // recuperation des dates
-      for (LocalizationModel localization in ticket.event.localizations) {
-        dates.add(localization.dateEvent);
-      }
-      ///// vérifier si l'un des dates dans _dates vaut la date d'aujourd'hui
-      ///
-      if (!Functions.containsCurrentDate(dates)) {
-        return Container(
-          width: double.infinity,
-          height: 230,
-          /* margin: EdgeInsets.only(bottom: keyboardHeight), */
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(15),
-              topRight: Radius.circular(15),
-            ),
-          ),
-          child: const ErrorSheetContainer(
-            icon: FluentIcons.calendar_24_regular,
-            text:
-                'Ce n\'est pas encore la date de l\'événement\nou la date est déjà passée.',
-          ),
-        );
-      }
-
       // ou valider le scan
 
       return firstScan(ticket: ticket, token: inspect.scanToken);
@@ -233,6 +237,7 @@ class _ScanSheetState extends State<ScanSheet> {
 
   Widget firstScan({required TicketModel ticket, required String token}) {
     final size = MediaQuery.of(context).size;
+    print(ticket.event.image);
     return Container(
       width: double.infinity,
       height: size.height / 1.6,
@@ -253,13 +258,26 @@ class _ScanSheetState extends State<ScanSheet> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: Functions.borderRadius(),
-                  image: const DecorationImage(
+                  /* image: const DecorationImage(
                     image: AssetImage('assets/images/ticket2.jpg'),
                     fit: BoxFit.cover,
-                  ),
+                  ), */
                 ),
-                child: Container(
-                  color: Colors.black.withOpacity(0.2),
+                child: ClipRRect(
+                  borderRadius: Functions.borderRadius(),
+                  child: FadeInImage.assetNetwork(
+                    placeholder: 'assets/images/events-placeholder.jpg',
+                    image: ticket.event.image ?? networtImgPlaceholder,
+                    fit: BoxFit.cover,
+                    imageErrorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/events-placeholder.jpg',
+                        fit: BoxFit.cover,
+                      );
+                    },
+                    width: double.infinity,
+                    height: size.width * 0.25,
+                  ),
                 ),
               ),
               const AllSheetHeader(),
@@ -300,28 +318,37 @@ class _ScanSheetState extends State<ScanSheet> {
                       children: [
                         InfosColumn(
                           opacity: 0.1,
-                          label: 'Pass',
-                          widget: AppText.medium(
-                            ticket.pass.name,
-                            textOverflow: TextOverflow.ellipsis,
+                          label: 'Event',
+                          widget: Expanded(
+                            child: AppText.medium(
+                              ticket.event.name,
+                              maxLine: 1,
+                              textOverflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 10),
                         InfosColumn(
                           opacity: 0.1,
-                          label: 'Event',
-                          widget: AppText.medium(
-                            ticket.event.name,
-                            textOverflow: TextOverflow.ellipsis,
+                          label: 'Pass',
+                          widget: Expanded(
+                            child: AppText.medium(
+                              ticket.pass.name,
+                              maxLine: 1,
+                              textOverflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 10),
                         InfosColumn(
                           opacity: 0.1,
                           label: 'Code',
-                          widget: AppText.medium(
-                            ticket.uniqueCode,
-                            textOverflow: TextOverflow.ellipsis,
+                          widget: Expanded(
+                            child: AppText.medium(
+                              maxLine: 1,
+                              ticket.uniqueCode,
+                              textOverflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         )
                       ],
@@ -384,6 +411,8 @@ class _ScanSheetState extends State<ScanSheet> {
                         toastPosition: EasyLoadingToastPosition.top,
                       );
                     }
+                    // ignore: use_build_context_synchronously
+                    Navigator.pop(context);
                   });
 
                   ////////:
@@ -405,8 +434,10 @@ class FirstCheck extends StatelessWidget {
   const FirstCheck({
     super.key,
     required this.code,
+    required this.inspectoroken,
   });
   final String code;
+  final String inspectoroken;
 
   @override
   Widget build(BuildContext context) {
@@ -442,14 +473,33 @@ class FirstCheck extends StatelessWidget {
                   text: 'Valider la vérification',
                   onPress: () async {
                     // EasyLoading.show();
+                    Map<String, dynamic> data = {
+                      /* "scanned": 1, */
+                      "token": inspectoroken,
+                    };
+                    EasyLoading.show();
 
-                    Map<String, dynamic> putData = {"first_check": 1};
-                    await RemoteService()
-                        .putSomethings(data: putData, api: 'tickets/$code');
-                    EasyLoading.dismiss();
-
-                    // ignore: use_build_context_synchronously
-                    Navigator.of(context).pop();
+                    Functions.scanValidation(
+                      data: data,
+                      uniqueCode: code,
+                    ).then((response) {
+                      EasyLoading.dismiss();
+                      if (response != null) {
+                        // _btnController.success();
+                        EasyLoading.showToast(
+                          'Scan confirmé !',
+                          toastPosition: EasyLoadingToastPosition.top,
+                        );
+                      } else {
+                        //_btnController.reset();
+                        EasyLoading.showToast(
+                          'Try again !',
+                          toastPosition: EasyLoadingToastPosition.top,
+                        );
+                      }
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(context);
+                    });
                   },
                 ),
               )

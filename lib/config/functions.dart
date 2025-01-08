@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
@@ -102,14 +103,12 @@ class Functions {
               child: Column(
                 children: [
                   Container(
-                    width: 135,
-                    height: 135,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
-                    child: /* SvgPicture.asset('assets/icons/404.svg') */
-                        Container(),
-                  ),
+                      width: 135,
+                      height: 135,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                      ),
+                      child: SvgPicture.asset('assets/icons/404.svg')),
                   //AppText.medium('Not found !'),
                   AppText.small('Aucune correspondance !'),
                   const SizedBox(

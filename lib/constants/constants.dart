@@ -1,2 +1,2 @@
 String networtImgPlaceholder =
-    'https://oifoeivdflxzgtj0.public.blob.vercel-storage.com/anowan-placeholder-tAFlbGkVichP1J33x41uuo0DBpKV4Q.png';
+    'https://img.freepik.com/vecteurs-libre/illustration-fete-bloc-plat-dessine-main_23-2149442132.jpg';

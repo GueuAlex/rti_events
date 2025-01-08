@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import '../constants/constants.dart';
 import 'image_model.dart';
 import 'inspector_model.dart';
@@ -8,6 +10,8 @@ import 'pass_model.dart';
 
 /* List<EventModel> listEventModelFromJson(String str) =>
     List<EventModel>.from(json.decode(str).map((x) => EventModel.fromJson(x))); */
+
+final imgBase = dotenv.env['IMG_BAS']!;
 
 String listEventModelToJson(List<EventModel> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
@@ -94,7 +98,7 @@ class EventModel {
         free: json["free"] == 0 ? false : true,
         qrcode: json["qrcode"],
         image: json["image"] != null
-            ? 'https://anowan.com/events/images/${json["image"]}'
+            ? '$imgBase${json["image"]}'
             : networtImgPlaceholder,
         published: json["published"] == 0 ? false : true,
         active: json["active"] == 0 ? false : true,
